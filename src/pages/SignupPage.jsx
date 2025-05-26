@@ -4,15 +4,17 @@ import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const LoginPage = () => {
+const SignupPage = () => {
     const [formData, setFormData] = useState({
+        username: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login, googleLogin } = useAuth();
+    const { signup, updateUserProfile } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -26,36 +28,27 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        try {
-            setError('');
-            setLoading(true);
-            
-            // Firebase로 로그인
-            await login(formData.email, formData.password);
-            
-            // 성공 시 홈페이지로 이동
-            navigate('/');
-        } catch (error) {
-            setError('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
-            console.error(error);
-        } finally {
-            setLoading(false);
+        // 유효성 검사
+        if (formData.password !== formData.confirmPassword) {
+            return setError('비밀번호가 일치하지 않습니다.');
         }
-    };
 
-    const handleGoogleLogin = async () => {
         try {
             setError('');
             setLoading(true);
             
-            // Google로 로그인
-            await googleLogin();
+            // Firebase에 회원가입
+            const { user } = await signup(formData.email, formData.password);
+            
+            // 사용자 프로필 업데이트
+            await updateUserProfile(user, {
+                displayName: formData.username
+            });
             
             // 성공 시 홈페이지로 이동
             navigate('/');
         } catch (error) {
-            setError('Google 로그인에 실패했습니다.');
-            console.error(error);
+            setError(error.message);
         } finally {
             setLoading(false);
         }
@@ -66,15 +59,24 @@ const LoginPage = () => {
             <Header />
 
             <div style={{ padding: '20px 15px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div className="login-logo"></div>
-
-                <h1 className="login-title">
-                    가장 편한 방법으로<br />시작해 보세요!
-                </h1>
+                <h1 className="signup-title">회원가입</h1>
 
                 {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '292px' }}>
+                    {/* 사용자 이름 입력 */}
+                    <div className="login-input">
+                        <span className="login-input-label">사용자 이름</span>
+                        <input 
+                            type="text" 
+                            name="username" 
+                            value={formData.username} 
+                            onChange={handleChange} 
+                            required 
+                            className="form-control"
+                        />
+                    </div>
+
                     {/* 이메일 입력 */}
                     <div className="login-input">
                         <span className="login-input-label">이메일</span>
@@ -101,44 +103,35 @@ const LoginPage = () => {
                         />
                     </div>
 
-                    {/* 로그인 버튼 */}
+                    {/* 비밀번호 확인 입력 */}
+                    <div className="login-input">
+                        <span className="login-input-label">비밀번호 확인</span>
+                        <input 
+                            type="password" 
+                            name="confirmPassword" 
+                            value={formData.confirmPassword} 
+                            onChange={handleChange} 
+                            required 
+                            className="form-control"
+                        />
+                    </div>
+
+                    {/* 회원가입 버튼 */}
                     <button 
                         type="submit" 
-                        className="login-button"
+                        className="login-button" 
                         disabled={loading}
                     >
-                        {loading ? '처리 중...' : '로그인'}
+                        {loading ? '처리 중...' : '회원가입'}
                     </button>
 
                     <div className="login-links">
-                        <Link to="/forgot-password" className="login-link">
-                            비밀번호를 잊어버렸어요!
-                        </Link>
-                        <Link to="/signup" className="login-link">
-                            회원가입
+                        <span>이미 계정이 있으신가요?</span>
+                        <Link to="/login" className="login-link">
+                            로그인하기
                         </Link>
                     </div>
                 </form>
-
-                <div style={{ marginTop: '20px' }}>
-                    <p className="social-login-title">1초만에 로그인</p>
-
-                    <div className="social-login-buttons">
-                        {/* 구글 */}
-                        <div 
-                            className="social-login-button google" 
-                            onClick={handleGoogleLogin}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            G
-                        </div>
-                        
-                        {/* 다른 소셜 로그인 버튼 */}
-                        <div className="social-login-button kakao">K</div>
-                        <div className="social-login-button apple">A</div>
-                        <div className="social-login-button naver">N</div>
-                    </div>
-                </div>
             </div>
 
             {/* 여백 (푸터 공간 확보) */}
@@ -149,4 +142,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default SignupPage; 

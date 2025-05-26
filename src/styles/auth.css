@@ -1,0 +1,166 @@
+/* 인증 페이지 스타일 */
+
+/* 로그인 & 회원가입 폼 스타일 */
+.login-title, .signup-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-input {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.login-input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.form-control:focus {
+  border-color: #ff5a5f;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 90, 95, 0.2);
+}
+
+.login-button {
+  width: 100%;
+  background-color: #ff5a5f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.login-button:hover {
+  background-color: #ff4146;
+}
+
+.login-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.login-link {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.login-link:hover {
+  color: #ff5a5f;
+  text-decoration: underline;
+}
+
+/* 소셜 로그인 스타일 */
+.social-login-title {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.social-login-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.social-login-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.social-login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.google {
+  background-color: #fff;
+  color: #4285F4;
+  border: 1px solid #ddd;
+}
+
+.kakao {
+  background-color: #FEE500;
+  color: #000;
+}
+
+.apple {
+  background-color: #000;
+  color: #fff;
+}
+
+.naver {
+  background-color: #03C75A;
+  color: #fff;
+}
+
+/* 에러 메시지 스타일 */
+.error-message {
+  background-color: #ffe5e5;
+  color: #ff3333;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 292px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* 프로필 페이지 스타일 */
+.profile-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.profile-card {
+  background-color: #fff;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 480px) {
+  .login-links {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+} 

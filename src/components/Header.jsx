@@ -1,18 +1,34 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = ({ searchBar = false }) => {
+    const { currentUser } = useAuth();
+
     return (
         <header className="header">
             <div className="header-links">
-                <Link to="/mypage" className="header-link">마이페이지</Link>
+                {currentUser && (
+                    <Link to="/profile" className="header-link">마이페이지</Link>
+                )}
             </div>
 
             <Link to="/" className="logo">LOGO</Link>
 
             <div className="header-links">
-                <Link to="/signup" className="header-link">회원가입</Link>
-                <Link to="/login" className="header-link">로그인</Link>
+                {currentUser ? (
+                    <>
+                        <Link to="/create" className="header-link">레시피 등록</Link>
+                        <Link to="/profile" className="header-link">
+                            {currentUser.displayName || '프로필'}
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/signup" className="header-link">회원가입</Link>
+                        <Link to="/login" className="header-link">로그인</Link>
+                    </>
+                )}
             </div>
 
             {searchBar && (
