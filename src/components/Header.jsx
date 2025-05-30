@@ -1,47 +1,70 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/Header.css';
 
-const Header = ({ searchBar = false }) => {
-    const { currentUser } = useAuth();
+const Header = ({ showScrollBanner = false }) => {
+    const navigate = useNavigate();
+    const { currentUser, logout } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/');
+        } catch (error) {
+            console.error('로그아웃 오류:', error);
+        }
+    };
 
     return (
-        <header className="header">
-            <div className="header-links">
-                {currentUser && (
-                    <Link to="/profile" className="header-link">마이페이지</Link>
-                )}
+        <>
+            {/* 메인 헤더 */}
+            <div className="main-header">
+                {/* 왼쪽 영역 */}
+                <div className="header-left">
+                    {/* 필요시 왼쪽 버튼 추가 가능 */}
+                </div>
+
+                {/* 중앙 로고 */}
+                <div className="header-center">
+                    <img
+                        src="/images/home/logo.png"
+                        alt="CookMate Logo"
+                        className="main-logo"
+                        onClick={() => navigate('/')}
+                        style={{ cursor: 'pointer' }}
+                    />
+                </div>
+
+                {/* 오른쪽 인증 영역 */}
+                <div className="header-right">
+                    {currentUser ? (
+                        <div className="auth-logged-in">
+                            <div className="user-greeting">
+                                안녕하세요, {currentUser.displayName || currentUser.email?.split('@')[0]}님
+                            </div>
+                            <div className="logout-btn" onClick={handleLogout}>
+                                로그아웃
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="auth-logged-out">
+                            <span onClick={() => navigate('/login')}>로그인</span>
+                            <span onClick={() => navigate('/register')}>회원가입</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            <Link to="/" className="logo">LOGO</Link>
-
-            <div className="header-links">
-                {currentUser ? (
-                    <>
-                        <Link to="/create" className="header-link">레시피 등록</Link>
-                        <Link to="/profile" className="header-link">
-                            {currentUser.displayName || '프로필'}
-                        </Link>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/signup" className="header-link">회원가입</Link>
-                        <Link to="/login" className="header-link">로그인</Link>
-                    </>
-                )}
-            </div>
-
-            {searchBar && (
-                <div className="search-bar" style={{ position: 'absolute', bottom: '-15px', left: '50%', transform: 'translateX(-50%)', maxWidth: '90%', width: '391px', zIndex: 10 }}>
-                    <input type="text" className="search-input" placeholder="오늘은 어떤 요리를 할까요?" />
-                    <div className="search-icon">
-                        <div className="search-dot"></div>
-                        <div className="search-dot"></div>
-                        <div className="search-dot"></div>
+            {/* 선택적 스크롤 배너 */}
+            {showScrollBanner && (
+                <div className="scroll-banner">
+                    <div className="scroll-text">
+                        LET'S GET COOKING • LET'S GET COOKING • LET'S GET COOKING • LET'S GET COOKING •
                     </div>
                 </div>
             )}
-        </header>
+        </>
     );
 };
 

@@ -1,45 +1,42 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Search from './pages/Search';
+import Recipe from './pages/Recipe';
+import RecipeForm from './pages/RecipeForm';
+import MyPage from './pages/MyPage';
+import Favorites from './pages/Favorites';
+import './styles/global.css';
 
-// 페이지 임포트
-import HomePage from './pages/HomePage';
-import SearchPage from './pages/SearchPage';
-import RecipeDetailPage from './pages/RecipeDetailPage';
-import CreateRecipePage from './pages/CreateRecipePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import ProfilePage from './pages/ProfilePage';
+function AppContent() {
+    return (
+        <div className="app">
+            <main className="main-content">
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/recipe/:id" element={<Recipe />} />
+                    <Route path="/recipe-form" element={<RecipeForm />} />
+                    <Route path="/mypage" element={<MyPage />} />
+                    <Route path="/favorites" element={<Favorites />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </main>
+        </div>
+    );
+}
 
-const App = () => {
+function App() {
     return (
         <AuthProvider>
-            <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/recipe/:id" element={<RecipeDetailPage />} />
-                <Route 
-                    path="/create" 
-                    element={
-                        <ProtectedRoute>
-                            <CreateRecipePage />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                <Route 
-                    path="/profile" 
-                    element={
-                        <ProtectedRoute>
-                            <ProfilePage />
-                        </ProtectedRoute>
-                    } 
-                />
-            </Routes>
+            <AppContent />
         </AuthProvider>
     );
-};
+}
 
 export default App; 

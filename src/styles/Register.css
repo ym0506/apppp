@@ -1,0 +1,283 @@
+.register-container {
+    width: 440px;
+    height: 956px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 헤더 */
+.register-header {
+    position: relative;
+    z-index: 10;
+}
+
+.header-banner {
+    width: 444px;
+    height: 33px;
+    background-color: #ffffff;
+    border: 1px solid #e53935;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    left: -2px;
+    top: 26px;
+}
+
+.header-banner span {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 200;
+    font-size: 16px;
+    line-height: 19px;
+    color: #e53935;
+    white-space: nowrap;
+    animation: scroll 10s linear infinite;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.header-top {
+    background-color: #fff3e0;
+    height: 79px;
+    width: 441px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.logo img {
+    width: 70px;
+    height: 56px;
+}
+
+/* 메인 콘텐츠 */
+.register-main {
+    position: relative;
+    padding: 40px 20px 20px;
+    height: calc(100vh - 112px);
+}
+
+/* 배경 장식 원들 */
+.background-decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.circle-orange {
+    width: 102px;
+    height: 102px;
+    background-color: #f7d1a9;
+    top: 43px;
+    left: -520px;
+}
+
+.circle-pink {
+    width: 119px;
+    height: 119px;
+    background-color: #f6e4f2;
+    top: 64px;
+    left: -430px;
+}
+
+/* 회원가입 폼 컨테이너 */
+.register-form-container {
+    position: relative;
+    z-index: 2;
+    max-width: 400px;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+
+.register-title {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* 입력 그룹 */
+.input-group {
+    position: relative;
+}
+
+.input-label {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 16px;
+    color: #000000;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.input-label.required {
+    color: #e53935;
+}
+
+.input-container {
+    position: relative;
+    width: 346px;
+    margin: 0 auto;
+}
+
+.form-input {
+    width: 100%;
+    height: 49px;
+    background: rgba(255, 243, 224, 0.7);
+    border-radius: 10px;
+    border: none;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    color: #000000;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #000000;
+    opacity: 0.6;
+}
+
+.form-input:focus {
+    background: rgba(255, 243, 224, 1);
+}
+
+/* 비밀번호 보기 버튼 */
+.eye-button {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eye-icon {
+    width: 18px;
+    height: 18px;
+    background-color: #666;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.eye-icon.closed {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+
+.eye-icon.open {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'/%3E%3Cline x1='1' y1='1' x2='23' y2='23'/%3E%3C/svg%3E");
+}
+
+/* 회원가입 버튼 */
+.register-button {
+    width: 346px;
+    height: 36px;
+    background-color: #e53935;
+    border-radius: 10px;
+    border: none;
+    margin: 0 auto;
+    margin-top: 40px;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 16px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-button:hover {
+    background-color: #d32f2f;
+}
+
+.register-button:active {
+    background-color: #c62828;
+}
+
+/* 특정 입력 필드 위치 조정 */
+.input-group:nth-child(1) .input-container {
+    margin-top: 31px;
+}
+
+.input-group:nth-child(2) .input-container {
+    margin-top: 31px;
+}
+
+.input-group:nth-child(3) .input-container {
+    margin-top: 31px;
+}
+
+.input-group:nth-child(4) .input-container {
+    margin-top: 31px;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+    .register-container {
+        width: 100%;
+        max-width: 440px;
+    }
+
+    .header-banner {
+        width: 100%;
+        left: 0;
+    }
+
+    .header-top {
+        width: 100%;
+    }
+
+    .input-container {
+        width: calc(100% - 40px);
+    }
+
+    .register-button {
+        width: calc(100% - 40px);
+    }
+}
