@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+// Firebase 관련 import 제거 (더 이상 직접 사용하지 않음)
+// import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+// import { db } from '../firebase';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
+// 새로 생성한 컴포넌트와 서비스 import
+import ImageUpload from '../components/ImageUpload';
+import { createRecipe } from '../services/apiService';
 
 const RecipeForm = () => {
     const navigate = useNavigate();
@@ -20,11 +24,13 @@ const RecipeForm = () => {
         servings: '2-3인분'
     });
 
+    // 이미지 파일 상태 추가
+    const [selectedImage, setSelectedImage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [currentStep, setCurrentStep] = useState(1);
 
-    const totalSteps = 4; // 총 4단계 폼
+    const totalSteps = 5; // 이미지 업로드 단계 추가로 총 5단계로 변경
 
     const validateForm = () => {
         const newErrors = {};
@@ -73,6 +79,9 @@ const RecipeForm = () => {
                 break;
             case 4:
                 if (formData.steps.some(step => !step.trim())) newErrors.steps = '모든 요리 과정을 입력해주세요.';
+                break;
+            case 5:
+                // 이미지는 선택사항이므로 유효성 검사 없음
                 break;
         }
 
@@ -129,6 +138,12 @@ const RecipeForm = () => {
         }
     };
 
+    // 이미지 파일 변경 핸들러 추가
+    const handleImageChange = (imageFile) => {
+        setSelectedImage(imageFile);
+        console.log('선택된 이미지:', imageFile);
+    };
+
     const nextStep = () => {
         if (validateCurrentStep() && currentStep < totalSteps) {
             setCurrentStep(currentStep + 1);
@@ -141,6 +156,7 @@ const RecipeForm = () => {
         }
     };
 
+    // 기존 handleSubmit 함수를 백엔드 API 연동으로 수정
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -157,40 +173,59 @@ const RecipeForm = () => {
         setLoading(true);
 
         try {
-            const recipeData = {
-                title: formData.title.trim(),
-                category: formData.category,
-                ingredients: formData.ingredients.trim(),
-                description: formData.description.trim(),
-                steps: formData.steps.map(step => step.trim()),
-                cookTime: formData.cookTime.trim(),
-                difficulty: formData.difficulty,
-                servings: formData.servings,
-                authorId: currentUser.uid,
-                authorName: currentUser.displayName || currentUser.email,
-                authorEmail: currentUser.email,
-                likes: 0,
-                comments: 0,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-                isPublic: true,
-                tags: [formData.category],
-                imageUrl: null,
-            };
+            // 디버깅: 전송할 데이터 로깅
+            console.log('🚀 레시피 등록 시작:', {
+                formData,
+                selectedImage: selectedImage ? {
+                    name: selectedImage.name,
+                    size: selectedImage.size,
+                    type: selectedImage.type
+                } : null,
+                currentUser: {
+                    uid: currentUser.uid,
+                    email: currentUser.email
+                }
+            });
 
-            const docRef = await addDoc(collection(db, 'recipes'), recipeData);
-            console.log('레시피 저장 완료. Document ID:', docRef.id);
+            // API 서비스를 통해 레시피 등록 (이미지 파일과 함께)
+            const result = await createRecipe(formData, selectedImage);
 
+            console.log('✅ 레시피 등록 성공:', result);
             alert('레시피가 성공적으로 등록되었습니다! 🎉');
             navigate('/mypage');
-        } catch (error) {
-            console.error('레시피 저장 오류:', error);
 
-            let errorMessage = '레시피 저장에 실패했습니다.';
-            if (error.code === 'permission-denied') {
-                errorMessage = '레시피 저장 권한이 없습니다. 로그인 상태를 확인해주세요.';
-            } else if (error.code === 'network-request-failed') {
-                errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.';
+        } catch (error) {
+            console.error('❌ 레시피 등록 오류:', error);
+            console.error('에러 상세 정보:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
+
+            // 에러 메시지 처리 개선
+            let errorMessage = '레시피 등록에 실패했습니다.';
+
+            if (error.message.includes('Failed to fetch') || error.message.includes('fetch')) {
+                errorMessage = `🌐 서버 연결 실패: 백엔드 서버가 실행 중인지 확인해주세요.\n
+현재 접속 시도 중인 서버: http://localhost:8081/api
+\n해결 방법:
+1. 백엔드 팀에게 서버 실행 상태 확인 요청
+2. 서버 포트가 8081이 맞는지 확인
+3. 방화벽이나 보안 프로그램 확인`;
+            } else if (error.message.includes('사용자 인증')) {
+                errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.';
+                navigate('/login');
+            } else if (error.message.includes('API 오류')) {
+                errorMessage = `서버 오류가 발생했습니다.\n\n상세 정보: ${error.message}\n\n백엔드 팀에게 이 오류를 전달해주세요.`;
+            } else if (error.message.includes('network') || error.message.includes('ERR_')) {
+                errorMessage = `네트워크 오류가 발생했습니다.\n\n가능한 원인:
+1. 인터넷 연결 상태 확인
+2. 백엔드 서버 실행 상태 확인
+3. CORS 설정 문제 (백엔드 팀 확인 필요)`;
+            } else if (error.message.includes('AbortError') || error.message.includes('timeout')) {
+                errorMessage = '서버 응답 시간이 초과되었습니다. 백엔드 서버가 실행 중인지 확인해주세요.';
+            } else {
+                errorMessage = `알 수 없는 오류가 발생했습니다.\n\n에러 메시지: ${error.message}\n\n이 정보를 백엔드 팀에게 전달해주세요.`;
             }
 
             alert(errorMessage);
@@ -264,7 +299,7 @@ const RecipeForm = () => {
                             ></div>
                         </div>
                         <div className="step-indicators">
-                            {[1, 2, 3, 4].map(step => (
+                            {[1, 2, 3, 4, 5].map(step => (
                                 <div
                                     key={step}
                                     className={`step-indicator ${currentStep >= step ? 'active' : ''}`}
@@ -285,12 +320,14 @@ const RecipeForm = () => {
                             {currentStep === 2 && '⏱️ 요리 정보'}
                             {currentStep === 3 && '🥬 재료 준비'}
                             {currentStep === 4 && '👨‍🍳 요리 과정'}
+                            {currentStep === 5 && '🖼️ 이미지 업로드'}
                         </h1>
                         <p className="form-subtitle">
                             {currentStep === 1 && '맛있는 레시피의 제목과 소개를 작성해주세요'}
                             {currentStep === 2 && '요리 시간과 난이도를 설정해주세요'}
                             {currentStep === 3 && '필요한 재료들을 입력해주세요'}
                             {currentStep === 4 && '단계별 요리 과정을 상세히 설명해주세요'}
+                            {currentStep === 5 && '레시피와 관련된 이미지를 업로드해주세요'}
                         </p>
                     </div>
 
@@ -504,6 +541,21 @@ const RecipeForm = () => {
                                         ))}
                                     </div>
                                     {errors.steps && <div className="error-message">⚠️ {errors.steps}</div>}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 5단계: 이미지 업로드 */}
+                        {currentStep === 5 && (
+                            <div className="form-step">
+                                <div className="form-group">
+                                    <label className="form-label">
+                                        <span className="label-icon">🖼️</span>
+                                        이미지 업로드
+                                    </label>
+                                    <ImageUpload
+                                        onImageChange={handleImageChange}
+                                    />
                                 </div>
                             </div>
                         )}
