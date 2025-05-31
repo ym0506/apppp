@@ -1,235 +1,1050 @@
-body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #fff8f0;
-}
+/* 🏠 프리미엄 홈페이지 스타일 - 완전 재설계 */
 
+/* 🌟 메인 앱 컨테이너 */
 .App {
     max-width: 430px;
     margin: 0 auto;
-    padding-bottom: 80px;
-    background: #ffffff;
+    padding-bottom: 120px;
+    /* 하단 네비게이션을 위한 여백 증가 */
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 253, 251, 0.95) 100%);
+    box-shadow:
+        0 0 60px rgba(255, 97, 66, 0.08),
+        0 0 120px rgba(255, 138, 101, 0.12),
+        0 25px 50px rgba(0, 0, 0, 0.08);
+    min-height: 100vh;
+    position: relative;
+    backdrop-filter: blur(40px);
+    border-left: 1px solid rgba(255, 255, 255, 0.6);
+    border-right: 1px solid rgba(255, 255, 255, 0.6);
 }
 
+/* 🎨 메인 배너 영역 - 혁신적 디자인 */
 .main-banner {
     position: relative;
     width: 100%;
     padding: 0;
     box-sizing: border-box;
+    background: linear-gradient(145deg, #ff8a65 0%, #ff6142 35%, #ed4a27 75%, #c8381d 100%);
+    border-radius: 0 0 32px 32px;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.main-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    z-index: 1;
 }
 
 .banner-image-wrap {
     position: relative;
     width: 100%;
+    height: 300px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
 }
 
 .main-visual {
     width: 100%;
-    height: auto;
-    border-radius: 0;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(1.1) contrast(1.05);
 }
 
 .banner-overlay {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 120px;
-    height: 120px;
+    bottom: 20px;
+    right: 20px;
+    width: 150px;
+    height: 150px;
     object-fit: contain;
     pointer-events: none;
+    opacity: 0.9;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+    z-index: 3;
 }
 
+/* 🔍 프리미엄 검색바 - 글래스모피즘 극대화 */
 .search-bar {
     display: flex;
     align-items: center;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    padding: 10px 14px;
-    margin: 8px 16px 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(25px) saturate(180%);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    border-radius: 28px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.12),
+        0 4px 12px rgba(255, 97, 66, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    padding: 20px 28px;
+    margin: -24px 24px 32px;
+    position: relative;
+    z-index: 10;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.search-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 28px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.search-bar:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 8px 20px rgba(255, 97, 66, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 97, 66, 0.3);
+}
+
+.search-bar:hover::before {
+    opacity: 1;
 }
 
 .search-bar input {
     flex: 1;
     border: none;
     outline: none;
-    font-size: 14px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #2c2c2c;
+    background: transparent;
+    margin-left: 16px;
+    font-family: 'SF Pro Display', 'Pretendard', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.search-bar input::placeholder {
+    color: #888;
+    font-weight: 400;
+    font-size: 16px;
 }
 
 .search-icon-inline {
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
+    width: 26px;
+    height: 26px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
+.search-bar:hover .search-icon-inline {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* 📂 섹션 스타일 - 모던 레이아웃 */
 .section {
-    padding: 20px;
+    padding: 32px 24px;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.section:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.section:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.section:nth-child(4) {
+    animation-delay: 0.3s;
 }
 
 .section h3 {
-    margin-bottom: 10px;
-    font-size: 16px;
-    font-weight: bold;
+    margin-bottom: 24px;
+    font-size: 26px;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: -0.03em;
+    position: relative;
+    padding-left: 16px;
+    line-height: 1.2;
+    font-family: 'SF Pro Display', 'Pretendard', sans-serif;
 }
 
+.section h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 28px;
+    background: linear-gradient(135deg, #ff7a5c 0%, #ed4a27 50%, #c8381d 100%);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(255, 97, 66, 0.3);
+}
+
+/* 🏷️ 카테고리 섹션 - 가로 스크롤 카드 시스템 */
 .category-list {
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    background: #fff4e6;
-    padding: 16px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    gap: 16px;
+    overflow-x: auto;
+    padding: 28px 20px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 253, 251, 0.95) 100%);
+    backdrop-filter: blur(25px) saturate(180%);
+    border-radius: 24px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba(255, 97, 66, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.category-list::-webkit-scrollbar {
+    display: none;
 }
 
 .category {
     text-align: center;
-    position: relative;
     cursor: pointer;
+    padding: 16px 12px;
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    background: transparent;
+    isolation: isolate;
+    flex-shrink: 0;
+    min-width: 90px;
+}
+
+.category::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 97, 66, 0.08) 0%, rgba(255, 122, 92, 0.12) 100%);
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.category:hover {
+    transform: translateY(-12px) scale(1.08);
+}
+
+.category:hover::before {
+    opacity: 1;
+}
+
+.category:active {
+    transform: translateY(-8px) scale(1.05);
 }
 
 .category-img-wrap {
     position: relative;
-    width: 70px;
-    height: 70px;
-    margin: 0 auto;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(254, 253, 251, 0.9) 100%);
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category:hover .category-img-wrap {
+    transform: scale(1.1);
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.12),
+        0 4px 12px rgba(255, 97, 66, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .category-img {
-    width: 80px;
-    height: 80px;
+    width: 44px;
+    height: 44px;
     object-fit: contain;
-    z-index: 2;
-    position: relative;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.category:hover .category-img {
+    transform: scale(1.1);
 }
 
 .plate-img {
     position: absolute;
-    bottom: 0px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 35px;
+    bottom: -8px;
+    right: -8px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
-    z-index: 1;
     opacity: 0.6;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.category:hover .plate-img {
+    opacity: 0.9;
+    transform: scale(1.15) rotate(15deg);
 }
 
 .category span {
     display: block;
-    margin-top: 6px;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c2c2c;
+    letter-spacing: -0.01em;
+    transition: all 0.3s ease;
+    font-family: 'SF Pro Display', 'Pretendard', sans-serif;
+    white-space: nowrap;
 }
 
+.category:hover span {
+    color: #ff6142;
+    transform: translateY(-2px);
+    font-weight: 700;
+}
+
+/* 🏆 베스트 메뉴 섹션 - 카드 그리드 */
 .best-menu {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    background: #fff4e6;
-    padding: 12px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.4) 0%, rgba(254, 253, 251, 0.6) 100%);
+    backdrop-filter: blur(20px);
+    padding: 28px 20px;
+    border-radius: 24px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.best-menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 97, 66, 0.5) 50%, transparent 100%);
 }
 
 .menu-card {
-    flex: 1;
-    background: none;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-    font-size: 13px;
-    box-shadow: none;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 16px;
     cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 97, 66, 0.05) 0%, rgba(255, 122, 92, 0.08) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.menu-card:hover::before {
+    opacity: 1;
 }
 
 .menu-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px) scale(1.05);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.12),
+        0 8px 20px rgba(255, 97, 66, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 97, 66, 0.3);
+}
+
+.menu-card:active {
+    transform: translateY(-4px) scale(1.02);
 }
 
 .menu-card img {
     width: 100%;
-    height: 120px;
+    height: 100px;
     object-fit: cover;
-    border-radius: 10px 10px 0 0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    filter: brightness(1.05) contrast(1.05);
+}
+
+.menu-card:hover img {
+    transform: scale(1.05);
+    filter: brightness(1.1) contrast(1.1);
 }
 
 .menu-card span {
     display: block;
-    padding: 8px 4px;
-    font-weight: 500;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c2c2c;
+    text-align: center;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    transition: all 0.3s ease;
+    font-family: 'SF Pro Display', 'Pretendard', sans-serif;
 }
 
-.menu-bot-character {
+.menu-card:hover span {
+    color: #ff6142;
+    transform: translateY(-2px);
+    font-weight: 700;
+}
+
+/* 🎭 애니메이션 정의 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0px);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-12px);
+    }
+}
+
+/* 📱 반응형 디자인 - 모바일 최적화 */
+@media (max-width: 480px) {
+    .App {
+        max-width: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding-bottom: 130px;
+        /* 모바일에서 여백 추가 */
+    }
+
+    .main-banner {
+        border-radius: 0 0 24px 24px;
+    }
+
+    .section {
+        padding: 24px 20px;
+    }
+
+    .search-bar {
+        margin: -20px 20px 24px;
+        padding: 18px 24px;
+    }
+
+    .category-list {
+        padding: 24px 16px;
+        gap: 12px;
+    }
+
+    .category {
+        min-width: 80px;
+    }
+
+    .category-img-wrap {
+        width: 60px;
+        height: 60px;
+    }
+
+    .category-img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .category span {
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .best-menu {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 16px;
+        padding: 24px 16px;
+    }
+
+    .menu-card img {
+        height: 80px;
+    }
+
+    .featured-recipes {
+        padding: 24px 16px;
+        gap: 16px;
+    }
+
+    .featured-recipe-card {
+        min-width: 160px;
+        padding: 16px;
+    }
+
+    .featured-recipe-card img {
+        height: 100px;
+    }
+
+    .featured-recipe-card .recipe-title {
+        font-size: 14px;
+    }
+
+    .stats-section {
+        padding: 24px 16px;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px 12px;
+    }
+
+    .stat-number {
+        font-size: 20px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .cooking-tips {
+        padding: 24px 16px;
+    }
+
+    .tip-card {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    .tip-title {
+        font-size: 14px;
+    }
+
+    .tip-content {
+        font-size: 12px;
+    }
+
+    .navbar {
+        padding: 16px 20px 28px;
+        border-radius: 24px 24px 0 0;
+        min-height: 84px;
+    }
+
+    .add-icon {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 24px;
+    }
+
+    .add-icon::before {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 360px) {
+    .section h3 {
+        font-size: 22px;
+    }
+
+    .category-list {
+        padding: 20px 12px;
+        gap: 10px;
+    }
+
+    .category {
+        padding: 12px 8px;
+        min-width: 70px;
+    }
+
+    .category-img-wrap {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 8px;
+    }
+
+    .category-img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .category span {
+        font-size: 11px;
+    }
+
+    .menu-card span {
+        font-size: 13px;
+    }
+
+    .featured-recipe-card {
+        min-width: 140px;
+        padding: 12px;
+    }
+
+    .featured-recipe-card img {
+        height: 80px;
+    }
+
+    .featured-recipe-card .recipe-title {
+        font-size: 12px;
+    }
+
+    .stats-section {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 20px 12px;
+    }
+
+    .stat-card {
+        padding: 12px 8px;
+    }
+
+    .stat-number {
+        font-size: 18px;
+    }
+
+    .stat-label {
+        font-size: 9px;
+    }
+
+    .cooking-tips {
+        padding: 20px 12px;
+    }
+
+    .tip-card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .tip-title {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .tip-content {
+        font-size: 11px;
+    }
+
+    .nav-label {
+        font-size: 10px;
+    }
+
+    .nav-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .navbar {
+        padding: 14px 16px 24px;
+        min-height: 80px;
+    }
+}
+
+/* 🌙 다크 모드 대응 (미래 확장용) */
+@media (prefers-color-scheme: dark) {
+    .App {
+        background: linear-gradient(145deg, rgba(18, 18, 18, 0.98) 0%, rgba(24, 24, 24, 0.95) 100%);
+        color: #ffffff;
+    }
+
+    .section h3 {
+        color: #ffffff;
+    }
+
+    .search-bar {
+        background: rgba(40, 40, 40, 0.95);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .search-bar input {
+        color: #ffffff;
+    }
+
+    .search-bar input::placeholder {
+        color: #888;
+    }
+
+    .category-list,
+    .best-menu {
+        background: linear-gradient(145deg, rgba(40, 40, 40, 0.9) 0%, rgba(32, 32, 32, 0.95) 100%);
+    }
+
+    .category-img-wrap,
+    .menu-card {
+        background: rgba(50, 50, 50, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .category span,
+    .menu-card span {
+        color: #ffffff;
+    }
+
+    .navbar {
+        background: rgba(40, 40, 40, 0.95);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-item {
+        color: #ccc;
+    }
+
+    .nav-item:hover {
+        color: #ff6142;
+    }
+}
+
+/* 🎯 추천 레시피 섹션 - 새로 추가 */
+.featured-recipes {
     display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    gap: 4px;
-    padding-right: 16px;
-    margin-top: 16px;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 28px 20px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.6) 0%, rgba(254, 253, 251, 0.8) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-.speech-img {
-    width: 140px;
-    height: auto;
-    margin-bottom: 30px;
+.featured-recipes::-webkit-scrollbar {
+    display: none;
 }
 
-.bot-img {
-    width: 100px;
-    height: auto;
+.featured-recipe-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px;
+    min-width: 200px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
 }
 
+.featured-recipe-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(255, 97, 66, 0.2);
+}
+
+.featured-recipe-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-bottom: 16px;
+}
+
+.featured-recipe-card .recipe-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.featured-recipe-card .recipe-category {
+    display: flex;
+    justify-content: center;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, #ff7a5c, #ff6142);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 97, 66, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 💡 요리 팁 섹션 - 새로 추가 */
+.cooking-tips {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 24px;
+    padding: 32px 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+}
+
+.cooking-tips::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+}
+
+.tip-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.tip-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tip-card:last-child {
+    margin-bottom: 0;
+}
+
+.tip-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tip-content {
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+/* 📊 통계 섹션 - 새로 추가 */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.5) 0%, rgba(254, 253, 251, 0.7) 100%);
+    backdrop-filter: blur(20px);
+    padding: 28px 20px;
+    border-radius: 24px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.stat-card {
+    text-align: center;
+    padding: 20px 16px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ff6142;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 🧭 하단 네비게이션 개선 - 고정 위치 최적화 */
 .navbar {
     position: fixed;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
     max-width: 430px;
-    background: #ffefd5;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(30px) saturate(200%);
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 28px 28px 0 0;
+    box-shadow:
+        0 -12px 48px rgba(0, 0, 0, 0.12),
+        0 -8px 24px rgba(255, 97, 66, 0.15),
+        inset 0 2px 0 rgba(255, 255, 255, 0.9);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 10px 0;
-    border-top: 1px solid #ccc;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
+    padding: 20px 24px 32px;
+    z-index: 9999;
+    /* 최상단 우선순위 */
+    min-height: 80px;
+    /* 최소 높이 보장 */
 }
 
 .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 11px;
-    color: #d23c3c;
-    cursor: pointer;
+    text-decoration: none;
+    color: #666;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 8px 12px;
+    border-radius: 16px;
+    position: relative;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 97, 66, 0.1) 0%, rgba(255, 122, 92, 0.15) 100%);
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nav-item:hover {
+    color: #ff6142;
+    transform: translateY(-4px);
+}
+
+.nav-item:hover::before {
+    opacity: 1;
 }
 
 .nav-icon {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.nav-item:hover .nav-icon {
+    transform: scale(1.1);
 }
 
 .nav-label {
-    width: 15px;
-    height: auto;
-    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: all 0.3s ease;
+    font-family: 'SF Pro Display', 'Pretendard', sans-serif;
 }
 
+.nav-item:hover .nav-label {
+    font-weight: 700;
+    transform: translateY(-1px);
+}
+
+/* ➕ 추가 버튼 - 플로팅 액션 */
 .add-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: #ff6b6b;
-    padding: 12px;
-    object-fit: contain;
-    margin-top: -30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 20;
+    width: 56px !important;
+    height: 56px !important;
+    background: linear-gradient(135deg, #ff7a5c 0%, #ed4a27 50%, #c8381d 100%);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 8px 24px rgba(255, 97, 66, 0.4),
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    margin: 0 !important;
+}
+
+.add-icon::before {
+    content: '+';
+    font-size: 28px;
+    font-weight: 300;
+    color: white;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.add-icon:hover::before {
+    transform: rotate(90deg) scale(1.1);
+}
+
+.add-icon:hover {
+    transform: translateY(-8px) scale(1.1);
+    box-shadow:
+        0 16px 40px rgba(255, 97, 66, 0.5),
+        0 8px 16px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.add-icon:active {
+    transform: translateY(-4px) scale(1.05);
 }

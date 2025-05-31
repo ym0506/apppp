@@ -110,7 +110,15 @@ export const AuthProvider = ({ children }) => {
 
   // 인증 상태 변경 감지
   useEffect(() => {
+    // 타임아웃 설정 (5초 후 강제로 로딩 완료)
+    const timeoutId = setTimeout(() => {
+      console.warn('Firebase 인증 초기화 타임아웃 - 기본값으로 진행');
+      setLoading(false);
+    }, 5000);
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      clearTimeout(timeoutId); // 정상 응답 시 타임아웃 해제
+
       if (user) {
         // Firestore에서 추가 사용자 정보 가져오기
         try {
@@ -133,7 +141,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   // Context에 전달할 값
@@ -149,7 +160,40 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          backgroundColor: '#fff',
+          flexDirection: 'column'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid #f3f3f3',
+            borderTop: '3px solid #ff6b35',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{
+            marginTop: '20px',
+            color: '#666',
+            fontSize: '16px'
+          }}>앱을 시작하는 중...</p>
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }; 
