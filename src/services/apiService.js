@@ -166,7 +166,38 @@ export const getRecipesByCategory = async (category) => {
 };
 
 /**
- * 레시피 상세 조회 API
+ * 레시피 상세 조회 API (ID만으로 조회)
+ * @param {string|number} id - 레시피 ID
+ * @returns {Promise} 레시피 상세 정보
+ */
+export const getRecipeById = async (id) => {
+    try {
+        console.log('🔍 백엔드 API 레시피 상세 조회 요청:', id);
+
+        const response = await apiRequest(`${config.api.baseUrl}/recipes/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.warn(`⚠️ API 응답 오류 (${response.status}):`, response.statusText);
+            return null; // 404나 다른 오류 시 null 반환으로 fallback 로직 작동
+        }
+
+        const result = await response.json();
+        console.log('✅ 백엔드 API 레시피 조회 성공:', result);
+        return result;
+
+    } catch (error) {
+        console.warn('⚠️ 백엔드 API 레시피 조회 실패:', error.message);
+        return null; // 네트워크 오류 등 시 null 반환으로 fallback 로직 작동
+    }
+};
+
+/**
+ * 레시피 상세 조회 API (카테고리와 ID로 조회) - 기존 함수 유지
  * @param {string} category - 카테고리
  * @param {string} id - 레시피 ID
  * @returns {Promise} 레시피 상세 정보
@@ -223,13 +254,11 @@ export const searchRecipesByTitle = async (title) => {
 /**
  * 사용자별 레시피 목록 조회 API
  * @param {string} firebaseUid - Firebase UID
- * @returns {Promise} 사용자의 레시피 목록
+ * @returns {Promise} 사용자 레시피 목록
  */
 export const getUserRecipes = async (firebaseUid) => {
     try {
-        if (!firebaseUid) {
-            throw new Error('사용자 UID가 필요합니다.');
-        }
+        console.log('🔍 사용자별 레시피 조회 요청:', firebaseUid);
 
         const response = await apiRequest(`${config.api.baseUrl}/recipes/user/${encodeURIComponent(firebaseUid)}`, {
             method: 'GET',
@@ -239,13 +268,17 @@ export const getUserRecipes = async (firebaseUid) => {
         });
 
         if (!response.ok) {
-            throw new Error(`API 오류 (${response.status})`);
+            console.warn(`⚠️ 사용자 레시피 조회 실패 (${response.status})`);
+            return [];
         }
 
-        return await response.json();
+        const result = await response.json();
+        console.log('✅ 사용자 레시피 조회 성공:', result);
+        return result;
+
     } catch (error) {
-        console.error('사용자 레시피 조회 오류:', error);
-        throw error;
+        console.warn('⚠️ 사용자 레시피 조회 실패:', error.message);
+        return [];
     }
 };
 

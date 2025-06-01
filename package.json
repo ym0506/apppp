@@ -2,15 +2,27 @@
   "name": "recipe-sharing-app",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "analyze": "webpack-bundle-analyzer dist/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "recipe",
+    "sharing",
+    "react",
+    "food",
+    "cooking"
+  ],
+  "author": "Recipe Team",
   "license": "ISC",
-  "description": "",
+  "description": "레시피 공유 웹 애플리케이션",
   "dependencies": {
     "firebase": "^11.8.1",
     "react": "^18.2.0",
@@ -27,6 +39,19 @@
     "style-loader": "^3.3.3",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "webpack-bundle-analyzer": "^4.9.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

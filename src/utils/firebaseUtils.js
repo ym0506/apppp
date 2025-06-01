@@ -25,21 +25,26 @@ export const likeService = {
     // 좋아요 토글
     async toggleLike(recipeId, userId) {
         try {
+            console.log('👍 좋아요 토글 시작:', { recipeId, userId });
             const likeId = `${userId}_${recipeId}`;
             const likeRef = doc(db, 'likes', likeId);
             const recipeRef = doc(db, 'recipes', recipeId);
 
             const likeDoc = await getDoc(likeRef);
+            console.log('👍 기존 좋아요 상태:', likeDoc.exists());
 
             if (likeDoc.exists()) {
                 // 좋아요 취소
+                console.log('👍 좋아요 취소 처리');
                 await deleteDoc(likeRef);
                 await updateDoc(recipeRef, {
                     likesCount: increment(-1)
                 });
+                console.log('✅ 좋아요 취소 완료');
                 return false;
             } else {
                 // 좋아요 추가
+                console.log('👍 좋아요 추가 처리');
                 await setDoc(likeRef, {
                     userId,
                     recipeId,
@@ -49,6 +54,7 @@ export const likeService = {
                 // 레시피 문서가 없으면 생성
                 const recipeDoc = await getDoc(recipeRef);
                 if (!recipeDoc.exists()) {
+                    console.log('📝 레시피 문서 생성');
                     await setDoc(recipeRef, {
                         id: recipeId,
                         likesCount: 1,
@@ -56,14 +62,17 @@ export const likeService = {
                         createdAt: serverTimestamp()
                     });
                 } else {
+                    console.log('📝 레시피 좋아요 수 증가');
                     await updateDoc(recipeRef, {
                         likesCount: increment(1)
                     });
                 }
+                console.log('✅ 좋아요 추가 완료');
                 return true;
             }
         } catch (error) {
-            console.error('좋아요 토글 오류:', error);
+            console.error('❌ 좋아요 토글 상세 오류:', error);
+            console.error('❌ 오류 코드:', error.code, '메시지:', error.message);
             throw error;
         }
     },
@@ -71,12 +80,16 @@ export const likeService = {
     // 좋아요 상태 확인
     async checkIfLiked(recipeId, userId) {
         try {
+            console.log('🔍 좋아요 상태 확인:', { recipeId, userId });
             const likeId = `${userId}_${recipeId}`;
             const likeRef = doc(db, 'likes', likeId);
             const likeDoc = await getDoc(likeRef);
-            return likeDoc.exists();
+            const isLiked = likeDoc.exists();
+            console.log('✅ 좋아요 상태 결과:', isLiked);
+            return isLiked;
         } catch (error) {
-            console.error('좋아요 상태 확인 오류:', error);
+            console.error('❌ 좋아요 상태 확인 오류:', error);
+            console.error('❌ 오류 코드:', error.code, '메시지:', error.message);
             return false;
         }
     },
@@ -118,39 +131,48 @@ export const favoriteService = {
     // 찜 토글
     async toggleFavorite(recipeId, userId) {
         try {
+            console.log('❤️ 찜 토글 시작:', { recipeId, userId });
             const favoritesRef = doc(db, 'favorites', userId);
             const favoritesDoc = await getDoc(favoritesRef);
 
             if (favoritesDoc.exists()) {
                 const recipeIds = favoritesDoc.data().recipeIds || [];
                 const isBookmarked = recipeIds.includes(recipeId);
+                console.log('❤️ 기존 찜 상태:', isBookmarked, '찜 목록:', recipeIds);
 
                 if (isBookmarked) {
                     // 찜 해제
+                    console.log('❤️ 찜 해제 처리');
                     await updateDoc(favoritesRef, {
                         recipeIds: arrayRemove(recipeId),
                         updatedAt: serverTimestamp()
                     });
+                    console.log('✅ 찜 해제 완료');
                     return false;
                 } else {
                     // 찜 추가
+                    console.log('❤️ 찜 추가 처리');
                     await updateDoc(favoritesRef, {
                         recipeIds: arrayUnion(recipeId),
                         updatedAt: serverTimestamp()
                     });
+                    console.log('✅ 찜 추가 완료');
                     return true;
                 }
             } else {
                 // 첫 찜 추가
+                console.log('❤️ 첫 찜 문서 생성');
                 await setDoc(favoritesRef, {
                     recipeIds: [recipeId],
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp()
                 });
+                console.log('✅ 첫 찜 추가 완료');
                 return true;
             }
         } catch (error) {
-            console.error('찜 토글 오류:', error);
+            console.error('❌ 찜 토글 상세 오류:', error);
+            console.error('❌ 오류 코드:', error.code, '메시지:', error.message);
             throw error;
         }
     },
@@ -158,16 +180,21 @@ export const favoriteService = {
     // 찜 상태 확인
     async checkIfBookmarked(recipeId, userId) {
         try {
+            console.log('🔍 찜 상태 확인:', { recipeId, userId });
             const favoritesRef = doc(db, 'favorites', userId);
             const favoritesDoc = await getDoc(favoritesRef);
 
             if (favoritesDoc.exists()) {
                 const recipeIds = favoritesDoc.data().recipeIds || [];
-                return recipeIds.includes(recipeId);
+                const isBookmarked = recipeIds.includes(recipeId);
+                console.log('✅ 찜 상태 결과:', isBookmarked, '찜 목록:', recipeIds);
+                return isBookmarked;
             }
+            console.log('ℹ️ 찜 문서 없음 - false 반환');
             return false;
         } catch (error) {
-            console.error('찜 상태 확인 오류:', error);
+            console.error('❌ 찜 상태 확인 오류:', error);
+            console.error('❌ 오류 코드:', error.code, '메시지:', error.message);
             return false;
         }
     },
@@ -175,13 +202,18 @@ export const favoriteService = {
     // 사용자의 찜한 레시피 목록 가져오기
     async getFavoriteRecipes(userId) {
         try {
+            console.log('📋 찜 목록 조회:', userId);
             const favoritesDoc = await getDoc(doc(db, 'favorites', userId));
             if (favoritesDoc.exists()) {
-                return favoritesDoc.data().recipeIds || [];
+                const recipeIds = favoritesDoc.data().recipeIds || [];
+                console.log('✅ 찜 목록 조회 결과:', recipeIds.length, '개');
+                return recipeIds;
             }
+            console.log('ℹ️ 찜 목록 없음');
             return [];
         } catch (error) {
-            console.error('찜 목록 가져오기 오류:', error);
+            console.error('❌ 찜 목록 가져오기 오류:', error);
+            console.error('❌ 오류 코드:', error.code, '메시지:', error.message);
             return [];
         }
     }
@@ -241,20 +273,51 @@ export const commentService = {
     // 댓글 목록 가져오기
     async getComments(recipeId) {
         try {
+            console.log('🔍 댓글 조회 시작 - recipeId:', recipeId);
+
+            // 디버깅: 모든 댓글 먼저 확인
+            try {
+                const allCommentsSnapshot = await getDocs(collection(db, 'comments'));
+                console.log('🔍 전체 댓글 수:', allCommentsSnapshot.docs.length);
+                allCommentsSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    console.log('📋 전체 댓글:', doc.id, '- recipeId:', data.recipeId, '- text:', data.text?.substring(0, 20));
+                });
+            } catch (debugError) {
+                console.error('❌ 전체 댓글 조회 실패:', debugError);
+            }
+
+            // orderBy 없이 먼저 시도
             const commentsQuery = query(
                 collection(db, 'comments'),
-                where('recipeId', '==', recipeId),
-                orderBy('createdAt', 'desc')
+                where('recipeId', '==', recipeId)
             );
 
             const snapshot = await getDocs(commentsQuery);
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate() || new Date()
-            }));
+            console.log('📊 댓글 쿼리 결과:', snapshot.docs.length, '개');
+
+            if (snapshot.docs.length > 0) {
+                console.log('📝 첫 번째 댓글 데이터:', snapshot.docs[0].data());
+            }
+
+            const comments = snapshot.docs.map(doc => {
+                const data = doc.data();
+                console.log('🔄 댓글 처리:', doc.id, data);
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate() || new Date()
+                };
+            });
+
+            // 클라이언트에서 정렬
+            comments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+            console.log('✅ 최종 댓글 목록:', comments.length, '개');
+            return comments;
         } catch (error) {
-            console.error('댓글 가져오기 오류:', error);
+            console.error('❌ 댓글 가져오기 상세 오류:', error);
+            console.error('❌ 오류 상세:', error.code, error.message);
             return [];
         }
     },
@@ -315,22 +378,62 @@ export const commentService = {
     // 실시간 댓글 구독
     subscribeToComments(recipeId, callback) {
         try {
+            console.log('🔄 댓글 구독 시작:', recipeId);
+
+            // orderBy 없이 먼저 시도
             const commentsQuery = query(
                 collection(db, 'comments'),
-                where('recipeId', '==', recipeId),
-                orderBy('createdAt', 'desc')
+                where('recipeId', '==', recipeId)
             );
 
-            return onSnapshot(commentsQuery, (snapshot) => {
-                const comments = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    createdAt: doc.data().createdAt?.toDate() || new Date()
-                }));
-                callback(comments);
-            });
+            return onSnapshot(commentsQuery,
+                (snapshot) => {
+                    console.log('✅ 댓글 스냅샷 수신:', snapshot.docs.length, '개');
+
+                    if (snapshot.docs.length > 0) {
+                        console.log('📝 첫 번째 스냅샷 댓글:', snapshot.docs[0].data());
+                    }
+
+                    const comments = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        console.log('🔄 스냅샷 댓글 처리:', doc.id, data);
+                        return {
+                            id: doc.id,
+                            ...data,
+                            createdAt: data.createdAt?.toDate() || new Date()
+                        };
+                    });
+
+                    // 클라이언트에서 정렬
+                    comments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+                    console.log('✅ 스냅샷 최종 댓글:', comments.length, '개');
+                    callback(comments);
+                },
+                (error) => {
+                    console.error('❌ 댓글 구독 실시간 오류:', error);
+                    console.error('❌ 구독 오류 상세:', error.code, error.message);
+                    // 실시간 구독 실패 시 일회성 조회로 폴백
+                    this.getComments(recipeId).then(comments => {
+                        console.log('🔄 폴백으로 댓글 조회:', comments.length);
+                        callback(comments);
+                    }).catch(fallbackError => {
+                        console.error('❌ 폴백 댓글 조회도 실패:', fallbackError);
+                        callback([]);
+                    });
+                }
+            );
         } catch (error) {
-            console.error('댓글 구독 오류:', error);
+            console.error('❌ 댓글 구독 초기화 오류:', error);
+            console.error('❌ 구독 초기화 오류 상세:', error.code, error.message);
+            // 구독 실패 시 일회성 조회로 폴백
+            this.getComments(recipeId).then(comments => {
+                console.log('🔄 초기화 실패 시 폴백으로 댓글 조회:', comments.length);
+                callback(comments);
+            }).catch(fallbackError => {
+                console.error('❌ 초기화 실패 시 폴백 댓글 조회도 실패:', fallbackError);
+                callback([]);
+            });
             return () => { };
         }
     }

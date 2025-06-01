@@ -157,8 +157,8 @@ const RecipeForm = () => {
     };
 
     // 기존 handleSubmit 함수를 백엔드 API 연동으로 수정
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        console.log('🚀 레시피 등록 시작 (5단계 전용 버튼)');
 
         if (!currentUser) {
             alert('로그인이 필요합니다.');
@@ -167,6 +167,7 @@ const RecipeForm = () => {
         }
 
         if (!validateForm()) {
+            alert('모든 필수 항목을 입력해주세요.');
             return;
         }
 
@@ -174,7 +175,7 @@ const RecipeForm = () => {
 
         try {
             // 디버깅: 전송할 데이터 로깅
-            console.log('🚀 레시피 등록 시작:', {
+            console.log('🚀 레시피 등록 데이터:', {
                 formData,
                 selectedImage: selectedImage ? {
                     name: selectedImage.name,
@@ -332,7 +333,7 @@ const RecipeForm = () => {
                     </div>
 
                     {/* 📋 폼 단계별 내용 */}
-                    <form onSubmit={handleSubmit} className="recipe-form">
+                    <form className="recipe-form">
                         {/* 1단계: 기본 정보 */}
                         {currentStep === 1 && (
                             <div className="form-step">
@@ -582,7 +583,8 @@ const RecipeForm = () => {
                                 </button>
                             ) : (
                                 <button
-                                    type="submit"
+                                    type="button"
+                                    onClick={handleSubmit}
                                     disabled={loading}
                                     className="btn btn-primary submit-btn"
                                 >

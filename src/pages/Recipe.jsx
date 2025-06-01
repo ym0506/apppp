@@ -12,6 +12,8 @@ import {
     commentService,
     recipeStatsService
 } from '../utils/firebaseUtils';
+// 백엔드 API 서비스 추가
+import { getRecipeById } from '../services/apiService';
 
 const Recipe = () => {
     const { id } = useParams();
@@ -35,12 +37,13 @@ const Recipe = () => {
         commentsCount: 0
     });
 
-    // 확장된 레시피 데이터베이스 - 각 음식별 고유 정보
+    // 확장된 레시피 데이터베이스 - 각 음식별 고유 정보 (백엔드 API 실패 시 fallback 용도)
     const recipeDatabase = {
         'kimchi-stew': {
             id: 'kimchi-stew',
             title: '돼지고기 김치찌개',
             image: '🥘',
+            imageUrl: '/images/home/kimchi-stew.jpg', // 이미지 URL 추가
             cookTime: '25min',
             difficulty: '난이도 중',
             author: {
@@ -61,6 +64,7 @@ const Recipe = () => {
             id: 'pasta',
             title: '토마토 미트볼 파스타',
             image: '🍝',
+            imageUrl: '/images/home/pasta.jpg',
             cookTime: '35min',
             difficulty: '난이도 중',
             author: {
@@ -82,6 +86,7 @@ const Recipe = () => {
             id: 'millefeuille',
             title: '밀푀유나베',
             image: '🍲',
+            imageUrl: '/images/home/millefeuille.jpg',
             cookTime: '20min',
             difficulty: '난이도 하',
             author: {
@@ -102,6 +107,7 @@ const Recipe = () => {
             id: 'fried-rice',
             title: '새우볶음밥',
             image: '🍤',
+            imageUrl: '/images/home/kimchi-stew.jpg', // 임시 이미지
             cookTime: '15min',
             difficulty: '난이도 하',
             author: {
@@ -122,6 +128,7 @@ const Recipe = () => {
             id: 'chicken-steak',
             title: '치킨 스테이크',
             image: '🍗',
+            imageUrl: '/images/home/pasta.jpg', // 임시 이미지
             cookTime: '30min',
             difficulty: '난이도 중',
             author: {
@@ -142,6 +149,7 @@ const Recipe = () => {
             id: 'soup',
             title: '미역국',
             image: '🥣',
+            imageUrl: '/images/home/millefeuille.jpg', // 임시 이미지
             cookTime: '15min',
             difficulty: '난이도 하',
             author: {
@@ -200,38 +208,90 @@ const Recipe = () => {
         }
     };
 
-    // 🔄 데이터 로드 및 구독 설정
+    // 🔄 데이터 로드 및 구독 설정 - 백엔드 API 우선 사용으로 개선
     useEffect(() => {
-        const loadRecipeData = () => {
-            const recipeData = recipeDatabase[id];
-            if (recipeData) {
-                setRecipe(recipeData);
+        const loadRecipeData = async () => {
+            setLoading(true);
+
+            try {
+                console.log('🔍 백엔드 API에서 레시피 조회 시도:', id);
+
+                // 1순위: 백엔드 API에서 레시피 조회
+                const backendRecipe = await getRecipeById(id);
+
+                if (backendRecipe) {
+                    console.log('✅ 백엔드에서 레시피 조회 성공:', backendRecipe);
+
+                    // 백엔드 API 응답을 프론트엔드 형식으로 변환
+                    const formattedRecipe = {
+                        id: backendRecipe.id,
+                        title: backendRecipe.title,
+                        image: '🍽️', // 기본 이모지
+                        imageUrl: backendRecipe.imageUrl || null, // 백엔드에서 제공하는 이미지 URL
+                        cookTime: backendRecipe.cookingTime || backendRecipe.cookTime,
+                        difficulty: backendRecipe.difficulty || '난이도 보통',
+                        author: {
+                            name: backendRecipe.authorName || '익명',
+                            avatar: '👨‍🍳'
+                        },
+                        ingredients: Array.isArray(backendRecipe.ingredients)
+                            ? backendRecipe.ingredients.join(', ')
+                            : backendRecipe.ingredients || '',
+                        description: backendRecipe.content || backendRecipe.description || '',
+                        steps: Array.isArray(backendRecipe.steps)
+                            ? backendRecipe.steps
+                            : [backendRecipe.steps || '요리 과정이 없습니다.'],
+                        category: backendRecipe.category || '기타'
+                    };
+
+                    setRecipe(formattedRecipe);
+                    return; // 성공했으므로 여기서 종료
+                }
+            } catch (error) {
+                console.warn('⚠️ 백엔드 API 레시피 조회 실패:', error.message);
+            }
+
+            // 2순위: 하드코딩된 데이터에서 조회 (fallback)
+            console.log('🔄 하드코딩 데이터에서 레시피 조회:', id);
+            const fallbackRecipe = recipeDatabase[id];
+
+            if (fallbackRecipe) {
+                console.log('✅ 하드코딩 데이터에서 레시피 조회 성공');
+                setRecipe(fallbackRecipe);
             } else {
+                console.error('❌ 레시피를 찾을 수 없음:', id);
                 setRecipe(null);
             }
-            setLoading(false);
         };
 
         const loadInitialData = async () => {
-            if (!currentUser) {
-                loadRecipeData();
-                return;
+            // 레시피 데이터 로드
+            await loadRecipeData();
+
+            // 사용자 관련 데이터 로드 (로그인한 경우만)
+            if (currentUser) {
+                console.log('👤 사용자 데이터 로딩 시작:', currentUser.uid);
+                try {
+                    // 찜 상태 확인
+                    console.log('❤️ 찜 상태 확인 시작');
+                    const favorited = await favoriteService.checkIfBookmarked(id, currentUser.uid);
+                    console.log('❤️ 찜 상태 확인 완료:', favorited);
+                    setIsBookmarked(favorited);
+
+                    // 좋아요 상태 확인
+                    console.log('👍 좋아요 상태 확인 시작');
+                    const liked = await likeService.checkIfLiked(id, currentUser.uid);
+                    console.log('👍 좋아요 상태 확인 완료:', liked);
+                    setIsLiked(liked);
+                } catch (error) {
+                    console.error('❌ 사용자 데이터 로드 상세 오류:', error);
+                    console.error('❌ 오류 코드:', error.code, '메시지:', error.message);
+                }
+            } else {
+                console.log('ℹ️ 로그인하지 않은 사용자 - 찜/좋아요 기능 비활성화');
             }
 
-            try {
-                // 찜 상태 확인
-                const favorited = await favoriteService.isFavorited(id, currentUser.uid);
-                setIsBookmarked(favorited);
-
-                // 좋아요 상태 확인
-                const liked = await likeService.isLiked(id, currentUser.uid);
-                setIsLiked(liked);
-
-                loadRecipeData();
-            } catch (error) {
-                console.error('초기 데이터 로드 오류:', error);
-                loadRecipeData();
-            }
+            setLoading(false);
         };
 
         // 통계 실시간 구독
@@ -239,18 +299,81 @@ const Recipe = () => {
             setStats(newStats);
         });
 
-        // 댓글 실시간 구독
-        const unsubscribeComments = commentService.subscribeToComments(id, (newComments) => {
-            setComments(newComments);
+        // 댓글 실시간 구독 - 지능적 병합 처리
+        const unsubscribeComments = commentService.subscribeToComments(id, (firebaseComments) => {
+            console.log('📝 댓글 콜백 수신:', firebaseComments.length);
+            setComments(prevComments => {
+                // 임시 댓글들을 찾아냄
+                const tempComments = prevComments.filter(comment => comment.isTemp);
+
+                // Firebase에서 온 실제 댓글들과 임시 댓글들을 병합
+                // 중복 제거: 같은 사용자가 같은 시간대에 같은 텍스트로 작성한 댓글 제거
+                const mergedComments = [...firebaseComments];
+
+                tempComments.forEach(tempComment => {
+                    // 임시 댓글과 동일한 내용의 실제 댓글이 Firebase에 없는 경우에만 유지
+                    const isDuplicate = firebaseComments.some(fbComment =>
+                        fbComment.userId === tempComment.userId &&
+                        fbComment.text === tempComment.text &&
+                        Math.abs(fbComment.createdAt.getTime() - tempComment.createdAt.getTime()) < 10000 // 10초 이내
+                    );
+
+                    if (!isDuplicate) {
+                        mergedComments.unshift(tempComment); // 최신 순으로 유지
+                    }
+                });
+
+                return mergedComments;
+            });
+            // 댓글 데이터를 받았으므로 (빈 배열이어도) 로딩 해제
             setCommentsLoading(false);
         });
 
+        // 추가적으로 일회성 댓글 조회도 시도 (실시간 구독이 늦을 경우 대비)
+        const loadCommentsOnce = async () => {
+            try {
+                console.log('🔄 일회성 댓글 조회 시도 - recipeId:', id);
+                console.log('📋 현재 레시피 ID 타입:', typeof id, '값:', id);
+                const initialComments = await commentService.getComments(id);
+                console.log('📝 일회성 댓글 조회 결과:', initialComments.length, '개');
+
+                if (initialComments.length > 0) {
+                    console.log('✅ 댓글 있음 - 상태 업데이트');
+                    setComments(initialComments);
+                } else {
+                    console.log('ℹ️ 댓글 없음 - 빈 배열 설정');
+                    setComments([]);
+                }
+                // 일회성 조회 완료 후에도 로딩 해제
+                setTimeout(() => {
+                    console.log('⏰ 일회성 조회 타임아웃 - 로딩 해제');
+                    setCommentsLoading(false);
+                }, 2000);
+            } catch (error) {
+                console.error('❌ 일회성 댓글 조회 실패:', error);
+                console.error('❌ 오류 상세:', error.code, error.message);
+                // 실패해도 로딩은 해제
+                setTimeout(() => {
+                    console.log('⏰ 오류 후 타임아웃 - 로딩 해제');
+                    setCommentsLoading(false);
+                }, 3000);
+            }
+        };
+
+        // 댓글 로딩 타임아웃 설정 (5초 후 강제로 로딩 해제)
+        const commentLoadingTimeout = setTimeout(() => {
+            console.log('⏰ 댓글 로딩 타임아웃 - 강제로 로딩 상태 해제');
+            setCommentsLoading(false);
+        }, 5000);
+
         loadInitialData();
+        loadCommentsOnce();
 
         // 클린업 함수
         return () => {
             unsubscribeStats();
             unsubscribeComments();
+            clearTimeout(commentLoadingTimeout);
         };
     }, [id, currentUser]);
 
@@ -261,14 +384,23 @@ const Recipe = () => {
             return;
         }
 
+        console.log('❤️ 찜 버튼 클릭:', { recipeId: id, userId: currentUser.uid });
         setBookmarkLoading(true);
 
         try {
             const newBookmarkState = await favoriteService.toggleFavorite(id, currentUser.uid);
+            console.log('✅ 찜 토글 성공:', newBookmarkState);
             setIsBookmarked(newBookmarkState);
+
+            // 사용자 피드백
+            if (newBookmarkState) {
+                console.log('💝 찜 추가됨');
+            } else {
+                console.log('💔 찜 해제됨');
+            }
         } catch (error) {
-            console.error('찜 토글 오류:', error);
-            alert('찜 기능 오류가 발생했습니다.');
+            console.error('❌ 찜 토글 UI 오류:', error);
+            alert('찜 기능 오류가 발생했습니다: ' + error.message);
         } finally {
             setBookmarkLoading(false);
         }
@@ -281,20 +413,29 @@ const Recipe = () => {
             return;
         }
 
+        console.log('👍 좋아요 버튼 클릭:', { recipeId: id, userId: currentUser.uid });
         setLikeLoading(true);
 
         try {
             const newLikeState = await likeService.toggleLike(id, currentUser.uid);
+            console.log('✅ 좋아요 토글 성공:', newLikeState);
             setIsLiked(newLikeState);
+
+            // 사용자 피드백
+            if (newLikeState) {
+                console.log('👍 좋아요 추가됨');
+            } else {
+                console.log('👎 좋아요 해제됨');
+            }
         } catch (error) {
-            console.error('좋아요 토글 오류:', error);
-            alert('좋아요 기능 오류가 발생했습니다.');
+            console.error('❌ 좋아요 토글 UI 오류:', error);
+            alert('좋아요 기능 오류가 발생했습니다: ' + error.message);
         } finally {
             setLikeLoading(false);
         }
     };
 
-    // 💬 댓글 추가 함수
+    // 💬 댓글 추가 함수 - 낙관적 업데이트 적용
     const handleAddComment = async () => {
         if (!currentUser) {
             alert('로그인이 필요합니다.');
@@ -306,15 +447,75 @@ const Recipe = () => {
             return;
         }
 
+        const commentText = newComment.trim();
+        const userName = currentUser.displayName || currentUser.email || '익명 사용자';
+
+        // 임시 댓글 객체 생성 (낙관적 업데이트용)
+        const tempComment = {
+            id: `temp_${Date.now()}`, // 임시 ID
+            recipeId: id,
+            userId: currentUser.uid,
+            userName,
+            text: commentText,
+            likes: 0,
+            likedBy: [],
+            createdAt: new Date(),
+            isTemp: true // 임시 댓글 플래그
+        };
+
         setCommentLoading(true);
+        setNewComment(''); // 입력창 즉시 클리어
 
         try {
-            const userName = currentUser.displayName || currentUser.email || '익명 사용자';
-            await commentService.addComment(id, currentUser.uid, userName, newComment);
-            setNewComment('');
+            // 1. 낙관적 업데이트: 댓글 목록에 즉시 추가
+            setComments(prevComments => [tempComment, ...prevComments]);
+
+            // 2. 통계 즉시 업데이트
+            setStats(prevStats => ({
+                ...prevStats,
+                commentsCount: prevStats.commentsCount + 1
+            }));
+
+            // 3. Firebase에 실제 댓글 저장
+            const savedComment = await commentService.addComment(id, currentUser.uid, userName, commentText);
+
+            // 4. 임시 댓글을 실제 댓글로 교체 (중복 방지)
+            setComments(prevComments => {
+                // 임시 댓글 제거하고 실제 댓글로 교체
+                const withoutTemp = prevComments.filter(comment => comment.id !== tempComment.id);
+
+                // 이미 같은 댓글이 Firebase 구독을 통해 추가되었는지 확인
+                const alreadyExists = withoutTemp.some(comment =>
+                    comment.id === savedComment.id ||
+                    (comment.userId === savedComment.userId &&
+                        comment.text === savedComment.text &&
+                        Math.abs(comment.createdAt.getTime() - savedComment.createdAt.getTime()) < 5000)
+                );
+
+                if (!alreadyExists) {
+                    return [{ ...savedComment, isTemp: false }, ...withoutTemp];
+                }
+
+                return withoutTemp;
+            });
+
+            console.log('✅ 댓글 추가 성공:', savedComment);
+
         } catch (error) {
-            console.error('댓글 추가 오류:', error);
-            alert('댓글 작성 중 오류가 발생했습니다.');
+            console.error('❌ 댓글 추가 오류:', error);
+
+            // 오류 발생 시 낙관적 업데이트 롤백
+            setComments(prevComments =>
+                prevComments.filter(comment => comment.id !== tempComment.id)
+            );
+            setStats(prevStats => ({
+                ...prevStats,
+                commentsCount: Math.max(0, prevStats.commentsCount - 1)
+            }));
+
+            // 입력 내용 복원
+            setNewComment(commentText);
+            alert('댓글 작성 중 오류가 발생했습니다. 다시 시도해주세요.');
         } finally {
             setCommentLoading(false);
         }
@@ -422,12 +623,41 @@ const Recipe = () => {
                     background: 'linear-gradient(135deg, #fff 0%, #f8f9fa 100%)',
                     border: '2px solid rgba(255, 97, 66, 0.1)'
                 }}>
+                    {/* 백엔드 이미지 우선 표시, 실패 시 이모지 fallback */}
+                    {recipe.imageUrl ? (
+                        <img
+                            src={recipe.imageUrl.startsWith('/uploads/')
+                                ? `http://localhost:8081${recipe.imageUrl}`
+                                : recipe.imageUrl
+                            }
+                            alt={recipe.title}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                borderRadius: '16px'
+                            }}
+                            onError={(e) => {
+                                console.warn('이미지 로딩 실패:', recipe.imageUrl);
+                                e.target.style.display = 'none';
+                                e.target.nextElementSibling.style.display = 'flex';
+                            }}
+                        />
+                    ) : null}
+
+                    {/* 이미지 없거나 로딩 실패 시 표시할 fallback */}
                     <div style={{
                         fontSize: '80px',
-                        opacity: 0.8
+                        opacity: 0.8,
+                        display: recipe.imageUrl ? 'none' : 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        height: '100%'
                     }}>
-                        {recipe.image}
+                        {recipe.image || '🍽️'}
                     </div>
+
                     <div style={{
                         position: 'absolute',
                         bottom: '16px',
@@ -779,18 +1009,39 @@ const Recipe = () => {
                         </div>
                     ) : comments.length > 0 ? (
                         comments.map((comment) => (
-                            <div key={comment.id} className="comment-item">
+                            <div
+                                key={comment.id}
+                                className={`comment-item ${comment.isTemp ? 'comment-temp' : ''}`}
+                                style={{
+                                    opacity: comment.isTemp ? 0.7 : 1,
+                                    background: comment.isTemp
+                                        ? 'rgba(255, 97, 66, 0.05)'
+                                        : 'rgba(255, 255, 255, 0.6)'
+                                }}
+                            >
                                 <div className="comment-header">
                                     <div className="comment-avatar">
                                         {comment.userName.charAt(0)}
                                     </div>
                                     <div className="comment-meta">
-                                        <span className="comment-author">{comment.userName}</span>
+                                        <span className="comment-author">
+                                            {comment.userName}
+                                            {comment.isTemp && (
+                                                <span style={{
+                                                    marginLeft: '6px',
+                                                    fontSize: '11px',
+                                                    color: '#ff6142',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    (등록중...)
+                                                </span>
+                                            )}
+                                        </span>
                                         <span className="comment-date">
                                             {comment.createdAt.toLocaleDateString()}
                                         </span>
                                     </div>
-                                    {currentUser && currentUser.uid === comment.userId && (
+                                    {currentUser && currentUser.uid === comment.userId && !comment.isTemp && (
                                         <button
                                             onClick={() => handleDeleteComment(comment.id)}
                                             style={{
@@ -811,10 +1062,10 @@ const Recipe = () => {
                                     <button
                                         className="comment-like-btn"
                                         onClick={() => handleCommentLike(comment.id)}
-                                        disabled={!currentUser}
+                                        disabled={!currentUser || comment.isTemp}
                                         style={{
-                                            opacity: !currentUser ? 0.5 : 1,
-                                            cursor: !currentUser ? 'not-allowed' : 'pointer'
+                                            opacity: (!currentUser || comment.isTemp) ? 0.5 : 1,
+                                            cursor: (!currentUser || comment.isTemp) ? 'not-allowed' : 'pointer'
                                         }}
                                     >
                                         <span>
@@ -1340,6 +1591,36 @@ const Recipe = () => {
                     .not-found-text {
                         font-size: 14px;
                     }
+                }
+
+                /* 임시 댓글 스타일 */
+                .comment-temp {
+                    position: relative;
+                    border: 1px solid rgba(255, 97, 66, 0.2) !important;
+                    background: rgba(255, 97, 66, 0.03) !important;
+                }
+
+                .comment-temp::before {
+                    content: '⏳';
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    font-size: 12px;
+                    opacity: 0.6;
+                    animation: pulse 1.5s ease-in-out infinite;
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.3; }
+                    50% { opacity: 0.8; }
+                }
+
+                .comment-temp .comment-avatar {
+                    background: linear-gradient(135deg, rgba(255, 97, 66, 0.7), rgba(255, 138, 101, 0.7)) !important;
+                }
+
+                .comment-temp .comment-content {
+                    color: rgba(85, 85, 85, 0.8) !important;
                 }
             `}</style>
         </div>

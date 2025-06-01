@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import '../styles/Home.css';
 import { recipeService } from '../utils/firebaseUtils';
+import { getUserRecipes } from '../services/apiService';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // 확장된 레시피 데이터 - 각 메뉴별로 고유한 정보 제공
+    // 확장된 레시피 데이터 - 각 메뉴별로 고유한 정보 제공 (fallback 용도)
     const recipeData = {
         'kimchi-stew': {
             name: '돼지고기 김치찌개',
@@ -52,14 +53,65 @@ const Home = () => {
         const fetchRecipes = async () => {
             try {
                 setLoading(true);
+                console.log('🔍 홈 페이지에서 레시피 데이터 로드 시작');
 
-                // 최신 레시피 가져오기 (랜덤 레시피 대신)
-                const { recipes: latestRecipes } = await recipeService.getAllRecipes(6);
-                setRandomRecipes(latestRecipes);
+                let backendRecipes = [];
 
-                // 인기 레시피 가져오기
-                const popularRecipeData = await recipeService.getPopularRecipes(6);
-                setPopularRecipes(popularRecipeData);
+                // 1순위: 로그인된 사용자의 레시피를 백엔드에서 조회
+                if (currentUser?.uid) {
+                    try {
+                        console.log('🔍 백엔드에서 사용자 레시피 조회:', currentUser.uid);
+                        backendRecipes = await getUserRecipes(currentUser.uid);
+                        console.log('✅ 백엔드 레시피 조회 결과:', backendRecipes);
+                    } catch (error) {
+                        console.warn('⚠️ 백엔드 레시피 조회 실패:', error.message);
+                    }
+                }
+
+                // 백엔드 레시피를 프론트엔드 형식으로 변환
+                const formattedBackendRecipes = backendRecipes.map(recipe => ({
+                    id: recipe.id,
+                    title: recipe.title,
+                    imageUrl: recipe.imageUrl || null,
+                    category: recipe.category || '기타',
+                    cookTime: recipe.cookingTime || '30분',
+                    description: recipe.content || recipe.description || ''
+                }));
+
+                // 백엔드에서 가져온 레시피가 있으면 사용, 없으면 Firebase나 fallback 데이터 사용
+                if (formattedBackendRecipes.length > 0) {
+                    console.log('✅ 백엔드 레시피 사용:', formattedBackendRecipes.length, '개');
+                    setRandomRecipes(formattedBackendRecipes.slice(0, 6));
+                    setPopularRecipes(formattedBackendRecipes.slice(0, 6));
+                } else {
+                    console.log('🔄 Firebase에서 레시피 조회 시도');
+
+                    // 2순위: Firebase에서 레시피 가져오기
+                    try {
+                        const { recipes: latestRecipes } = await recipeService.getAllRecipes(6);
+                        setRandomRecipes(latestRecipes);
+
+                        const popularRecipeData = await recipeService.getPopularRecipes(6);
+                        setPopularRecipes(popularRecipeData);
+
+                        console.log('✅ Firebase 레시피 조회 성공');
+                    } catch (firebaseError) {
+                        console.warn('⚠️ Firebase 레시피 조회도 실패:', firebaseError.message);
+
+                        // 3순위: 하드코딩된 fallback 데이터 사용
+                        console.log('🔄 Fallback 데이터 사용');
+                        const mockRecipes = Object.entries(recipeData).map(([id, data]) => ({
+                            id,
+                            title: data.name,
+                            imageUrl: data.imageUrl,
+                            category: '한식',
+                            cookTime: '30분',
+                            description: data.description
+                        }));
+                        setRandomRecipes(mockRecipes.slice(0, 6));
+                        setPopularRecipes(mockRecipes.slice(0, 6));
+                    }
+                }
 
             } catch (err) {
                 console.error('레시피 데이터 로드 오류:', err);
@@ -82,7 +134,7 @@ const Home = () => {
         };
 
         fetchRecipes();
-    }, []);
+    }, [currentUser]);
 
     // 확장된 카테고리 데이터
     const categories = [
@@ -171,9 +223,13 @@ const Home = () => {
                                 <div className="menu-image">
                                     {recipe.imageUrl ? (
                                         <img
-                                            src={recipe.imageUrl}
+                                            src={recipe.imageUrl.startsWith('/uploads/')
+                                                ? `http://localhost:8081${recipe.imageUrl}`
+                                                : recipe.imageUrl
+                                            }
                                             alt={recipe.title}
                                             onError={(e) => {
+                                                console.warn('홈 페이지 이미지 로딩 실패:', recipe.imageUrl);
                                                 e.target.style.display = 'none';
                                                 e.target.parentNode.innerHTML = '<div class="recipe-emoji">🍽️</div>';
                                             }}
@@ -226,9 +282,13 @@ const Home = () => {
                                 <div className="recipe-image">
                                     {recipe.imageUrl ? (
                                         <img
-                                            src={recipe.imageUrl}
+                                            src={recipe.imageUrl.startsWith('/uploads/')
+                                                ? `http://localhost:8081${recipe.imageUrl}`
+                                                : recipe.imageUrl
+                                            }
                                             alt={recipe.title}
                                             onError={(e) => {
+                                                console.warn('홈 페이지 이미지 로딩 실패:', recipe.imageUrl);
                                                 e.target.style.display = 'none';
                                                 e.target.parentNode.innerHTML = '<div class="recipe-emoji">🍽️</div>';
                                             }}

@@ -20,6 +20,7 @@ function AppContent() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/search" element={<Search />} />
+                    <Route path="/recipe/new" element={<RecipeForm />} />
                     <Route path="/recipe/:id" element={<Recipe />} />
                     <Route path="/recipe-form" element={<RecipeForm />} />
                     <Route path="/mypage" element={<MyPage />} />

@@ -5,6 +5,7 @@ import { collection, query, where, getDocs, orderBy, limit } from 'firebase/fire
 import { db } from '../firebase';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
+import { getUserRecipes } from '../services/apiService';
 
 const MyPage = () => {
     const { currentUser, logout } = useAuth();
@@ -17,46 +18,7 @@ const MyPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // Mock 데이터 (별점 제거)
-    const mockMyRecipes = [
-        {
-            id: 1,
-            title: '간장계란밥',
-            description: '간단하지만 맛있는 한끼 식사',
-            image: '/images/home/kimchi-stew.jpg',
-            category: '한식',
-            likes: 156,
-            views: 1204,
-            cookTime: '10분',
-            difficulty: '초급',
-            createdAt: '2024-01-20'
-        },
-        {
-            id: 2,
-            title: '크림파스타',
-            description: '부드럽고 진한 크림파스타',
-            image: '/images/home/pasta.jpg',
-            category: '양식',
-            likes: 89,
-            views: 743,
-            cookTime: '25분',
-            difficulty: '중급',
-            createdAt: '2024-01-18'
-        },
-        {
-            id: 3,
-            title: '김치볶음밥',
-            description: '매콤한 김치볶음밥',
-            image: '/images/home/millefeuille.jpg',
-            category: '한식',
-            likes: 94,
-            views: 521,
-            cookTime: '15분',
-            difficulty: '초급',
-            createdAt: '2024-01-15'
-        }
-    ];
-
+    // Mock 데이터 제거하고 실제 API 연동
     useEffect(() => {
         if (currentUser) {
             loadMyData();
@@ -68,19 +30,48 @@ const MyPage = () => {
             setLoading(true);
             setError('');
 
-            // 실제 환경에서는 Firebase에서 사용자 레시피 가져오기
-            // 현재는 Mock 데이터 사용
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 로딩 시뮬레이션
+            console.log('🔍 사용자 레시피 로드 시작:', currentUser.uid);
 
-            setMyRecipes(mockMyRecipes);
+            // 백엔드 API를 통해 실제 사용자 레시피 가져오기
+            const userRecipes = await getUserRecipes(currentUser.uid);
+
+            console.log('✅ 사용자 레시피 로드 성공:', userRecipes);
+
+            // API 응답 데이터를 UI에 맞게 변환
+            const formattedRecipes = userRecipes.map(recipe => ({
+                id: recipe.id,
+                title: recipe.title,
+                description: recipe.content || '맛있는 레시피입니다', // content 필드를 description으로 사용
+                image: recipe.imageUrl
+                    ? (recipe.imageUrl.startsWith('/uploads/')
+                        ? `http://localhost:8081${recipe.imageUrl}`  // 백엔드 서버 주소 추가
+                        : recipe.imageUrl)
+                    : '/images/default-recipe.jpg', // 기본 이미지 설정
+                category: recipe.category || '한식',
+                likes: 0, // 백엔드에서 좋아요 수 제공 시 사용
+                views: 0, // 백엔드에서 조회수 제공 시 사용
+                cookTime: recipe.cookingTime || '30분', // 실제 백엔드 데이터 사용
+                difficulty: recipe.difficulty || '쉬움', // 실제 백엔드 데이터 사용
+                createdAt: new Date().toISOString().split('T')[0] // 현재 날짜 사용 (백엔드에서 createdAt 제공 시 사용)
+            }));
+
+            setMyRecipes(formattedRecipes);
             setStats({
-                totalRecipes: mockMyRecipes.length,
-                totalLikes: mockMyRecipes.reduce((sum, recipe) => sum + recipe.likes, 0),
-                totalViews: mockMyRecipes.reduce((sum, recipe) => sum + recipe.views, 0)
+                totalRecipes: formattedRecipes.length,
+                totalLikes: formattedRecipes.reduce((sum, recipe) => sum + recipe.likes, 0),
+                totalViews: formattedRecipes.reduce((sum, recipe) => sum + recipe.views, 0)
             });
         } catch (err) {
-            console.error('내 데이터 로드 오류:', err);
-            setError('데이터를 불러오는데 실패했습니다.');
+            console.error('❌ 내 레시피 로드 오류:', err);
+            setError(`데이터를 불러오는데 실패했습니다: ${err.message}`);
+
+            // 에러 발생 시 빈 배열로 설정
+            setMyRecipes([]);
+            setStats({
+                totalRecipes: 0,
+                totalLikes: 0,
+                totalViews: 0
+            });
         } finally {
             setLoading(false);
         }
@@ -220,7 +211,27 @@ const MyPage = () => {
                                             src={recipe.image}
                                             alt={recipe.title}
                                             className="card-image"
+                                            onError={(e) => {
+                                                console.warn('이미지 로딩 실패:', recipe.image);
+                                                e.target.style.display = 'none';
+                                                if (e.target.nextElementSibling && e.target.nextElementSibling.className !== 'card-category-badge') {
+                                                    e.target.nextElementSibling.style.display = 'flex';
+                                                }
+                                            }}
                                         />
+                                        {/* 이미지 로딩 실패 시 fallback */}
+                                        <div className="image-fallback" style={{
+                                            display: 'none',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '100%',
+                                            height: '100%',
+                                            backgroundColor: '#f5f5f5',
+                                            fontSize: '48px',
+                                            color: '#666'
+                                        }}>
+                                            🍽️
+                                        </div>
                                         <div className="card-category-badge" style={{
                                             backgroundColor: getCategoryColor(recipe.category)
                                         }}>
