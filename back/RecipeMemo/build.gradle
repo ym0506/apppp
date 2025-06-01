@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.18'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'org.likelion.hsu'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    compileOnly 'org.projectlombok:lombok'
+    
+    // H2 데이터베이스 (개발/테스트용 내장 DB)
+    runtimeOnly 'com.h2database:h2'
+    
+    // PostgreSQL 추가 (Railway 기본 DB - 프로덕션용)
+    runtimeOnly 'org.postgresql:postgresql'
+    
+    // MySQL 지원 (필요시 활성화)
+    // runtimeOnly 'com.mysql:mysql-connector-j'
+    
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Railway 배포 최적화
+tasks.named('bootJar') {
+    archiveFileName = 'app.jar'
+    enabled = true
+}
+
+tasks.named('jar') {
+    enabled = false
+}
